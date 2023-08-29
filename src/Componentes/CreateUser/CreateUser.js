@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import Usuario from "../User/user";
-import Contas from "../Contas/Contas"
+import Usuario from "../../Classes/User/user";
+import Contas from "../../Classes/Contas/Contas"
 import './CreateUser.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import { Link, useNavigate } from "react-router-dom";
-import planetImage from '../assets/planet.png';
+import planetImage from '../../assets/planet.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const CreateUser = () => {
@@ -18,11 +20,13 @@ const CreateUser = () => {
     const CreateAccount = async () => {
       const createaccount = new Usuario();
       const retorno = await createaccount.CreateUsuario(user, email, cpf, password);
-      alert(retorno);
-      if (retorno.includes('Usuário Criado com sucesso')){
+      console.log(retorno)
+      if (retorno.includes('Usuário criado com sucesso!')){
         const createcontas = new Contas('','0001','0', user, email, cpf, password);
-        const retorno = await createcontas.setConta(cpf);
-        navigate('/')
+        const retornar = await createcontas.setConta(cpf);
+        navigate('/tipoconta')
+      } else {
+        toast("Informações inválidas! 🚨");
       }
 
     };
@@ -31,6 +35,7 @@ const CreateUser = () => {
 
     return (
         <div className="container-fluid d-flex login-page">
+        <ToastContainer />
         <a className="navbar-brand text-white p-0 mb-2" href="#">
             <span className="titulo">Bank</span>
             <img src={planetImage} alt="Planet" id="img"></img>

@@ -1,0 +1,46 @@
+.footer-navbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa; /* Defina a cor de fundo desejada */
+    height: 60px; /* Defina a altura desejada */
+    border-top: 1px solid #ccc; /* Opcional: adicione uma borda superior */
+  }
+
+  .home {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid white;
+    border-radius: 100%;
+    background-color: #777373;
+    width: 60px;
+    height: 60px;
+    margin-top: -20px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .home:hover,
+  .other:hover {
+    background-color: #a8a8a8;
+    cursor: pointer;
+  }
+
+  #img{
+    margin: 0;
+  }
+
+  .tituloimg {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .other {
+    display: flex;
+    flex-direction: column;
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+  }
