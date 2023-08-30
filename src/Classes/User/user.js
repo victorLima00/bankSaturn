@@ -3,6 +3,7 @@ import {
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    fetchSignInMethodsForEmail,
 } from 'firebase/auth';
 import {
     getFirestore,
@@ -22,6 +23,26 @@ class Usuario {
         this.auth = getAuth(app);
     }
 
+    async setUser(cpf) {
+        const db = getFirestore();
+    
+        const contaQuery = query(collection(db, 'user'), where('cpf', '==', cpf));
+        const contaSnapshot = await getDocs(contaQuery);
+    
+        contaSnapshot.forEach((doc) => {
+            const data = doc.data(); // Dados do documento
+            const { name, cpf, email, password } = data; // Desestruturação dos dados
+    
+            // Inserir as informações no localStorage
+            localStorage.setItem('conta', JSON.stringify({
+                userName: name,
+                userCPF: cpf,
+                userEmail: email,
+                userPassword: password
+            }));
+        });
+    }      
+
     async getUsuario() {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
@@ -30,6 +51,20 @@ class Usuario {
             return null;
         }
     }
+
+    async VerificarUsuarioPorEmail(email) {
+        const auth = getAuth();
+
+        console.log(email)
+        
+        try {
+          const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+          return signInMethods.length > 0; // Retorna true se o e-mail já estiver cadastrado
+        } catch (error) {
+          console.error("Erro ao verificar e-mail:", error);
+          return false;
+        }
+      }
     
 
     async LoginUsuario(email, password) {
@@ -67,8 +102,31 @@ class Usuario {
     async CreateUsuario(name, email, cpf, password) {
         if (!name || !email || !cpf || !password) {
             return 'Todos os campos devem estar preenchidos!';
-        } else {
+        } else if(password.length < 6){
+            return 'A senha deve possuir no mínimo 6 caracteres!'
+        } else if(this.isValidCPF(cpf) === false) {
+            return 'CPF informado é inválido!'
+        } 
+         else {
             try {
+
+            const dataBank = getFirestore(app);
+            const userCollection = collection(dataBank, 'user');
+            
+            // Verificar se o CPF já está cadastrado
+            const cpfQuery = query(userCollection, where('userCPF', '==', cpf));
+            const cpfQuerySnapshot = await getDocs(cpfQuery);
+            if (!cpfQuerySnapshot.empty) {
+                return 'CPF já está cadastrado!';
+            }
+            
+            // Verificar se o e-mail já está cadastrado
+            const emailQuery = query(userCollection, where('userEmail', '==', email));
+            const emailQuerySnapshot = await getDocs(emailQuery);
+            if (!emailQuerySnapshot.empty) {
+                return 'E-mail já está cadastrado!';
+            }
+
                 const auth = getAuth(app);
                 // Criar usuário de autenticação
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -76,8 +134,6 @@ class Usuario {
                 console.log('Novo usuário de autenticação criado:', user);
     
                 // Inserir detalhes no Firestore
-                const dataBank = getFirestore(app);
-                const userCollection = collection(dataBank, "user");
                 const docRef = await addDoc(userCollection, {
                     userName: name,
                     userCPF: cpf,
@@ -93,6 +149,35 @@ class Usuario {
                 return 'Erro ao criar usuário.';
             }
         }
+    }
+    
+    isValidCPF(cpf) {
+        cpf = cpf.replace(/[^\d]/g, ''); 
+        if (cpf.length !== 11) return false;
+    
+        if (/^(\d)\1+$/.test(cpf)) return false;
+    
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+            sum += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+    
+        let remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+    
+        if (remainder !== parseInt(cpf.charAt(9))) return false;
+    
+        sum = 0;
+        for (let i = 0; i < 10; i++) {
+            sum += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+    
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+    
+        if (remainder !== parseInt(cpf.charAt(10))) return false;
+    
+        return true;
     }
     
     

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Usuario from "../../Classes/User/user";
 import Contas from "../../Classes/Contas/Contas"
 import './CreateUser.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import planetImage from '../../assets/planet.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,6 +16,35 @@ const CreateUser = () => {
     const [cpf, setCpf] = useState("")
     const [password, setPassword] = useState("")
     let navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+      if (location.state) {
+        setUser(location.state.name);
+        setEmail(location.state.email);
+        setCpf(location.state.cpf);
+      }
+    }, [location.state]);
+    
+
+    useEffect(() => {
+      const handleKeyDown = (event) => {
+          if (event.key === 'Enter' || event.keyCode === 13) {
+              CreateAccount();
+          }
+      };
+
+      const formElement = document.getElementById('createUserForm'); // Substitua pelo ID do formulário
+      if (formElement) {
+          formElement.addEventListener('keydown', handleKeyDown);
+      }
+
+      return () => {
+          if (formElement) {
+              formElement.removeEventListener('keydown', handleKeyDown);
+          }
+      };
+    }, []);
 
     const CreateAccount = async () => {
       const createaccount = new Usuario();
@@ -24,13 +53,20 @@ const CreateUser = () => {
       if (retorno.includes('Usuário criado com sucesso!')){
         const createcontas = new Contas('','0001','0', user, email, cpf, password);
         const retornar = await createcontas.setConta(cpf);
+        
+        // Inserindo as informações no localStorage aqui
+        localStorage.setItem('user', JSON.stringify({
+          userName: user,
+          userCPF: cpf,
+          userEmail: email,
+          userPassword: password
+        }));
+    
         navigate('/tipoconta')
       } else {
-        toast("Informações inválidas! 🚨");
+        toast(retorno + "🚨");
       }
-
     };
-  
     
 
     return (
@@ -40,7 +76,7 @@ const CreateUser = () => {
             <span className="titulo">Bank</span>
             <img src={planetImage} alt="Planet" id="img"></img>
             </a>
-        <form className="bg-light formedit">
+        <form className="bg-light formedit" id="createUserForm">
           <div className="mb-3">
             <label className="form-label">Name User</label>
             <input type="text" 

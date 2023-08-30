@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import { Link, useNavigate } from "react-router-dom";
 import Usuario, { usuarioLogado } from "../../Classes/User/user";
+import Login from "../Login/Login"
 
 const TipoConta = () => {
     var [cpf, setCpf] = useState("")
@@ -15,28 +16,29 @@ const TipoConta = () => {
 
   
     const contacorrente = async () => {
-
         const usercpf = await usuarioLogado.getUsuario();
-        cpf = usercpf.cpf
-        console.log(cpf)
-
+        const cpf = usercpf.userCPF; 
+      
         const conta = new Contas();
         const contaData = await conta.getConta(cpf);
         setCpf(contaData.cpf);
-    
+      
         const contacorrente = new ContaCorrente();
         const retorno = await contacorrente.setContaCorrente(cpf);
-        navigate('/loading')
-    }
+        navigate('/');
+      };
     
     const contapoupanca = async () => {
+        const usercpf = await usuarioLogado.getUsuario();
+        const cpf = usercpf.userCPF;
+      
         const conta = new Contas();
         const contaData = await conta.getConta(cpf);
         setCpf(contaData.cpf);
     
         const contapoupanca = new ContaPoupanca();
         const retorno = await contapoupanca.setContaPoupanca(cpf);
-        navigate('/loading')
+        navigate('/')
     }
     
 

@@ -89,7 +89,7 @@ const Home = () => {
                 <div className="card text-bg-dark mb-3 mt-4" id="card">
                     <div className="card-header">
                         <span>
-                            Bem-vindo {userInfo ? userInfo.name : "Usuário não logado"}!
+                            Welcome {userInfo ? userInfo.name : "Usuário não logado"}!
                         </span>
                         <span id="saldo"></span>
                         <div className="disp" id="versaldo" onClick={Versaldo}>
@@ -141,10 +141,10 @@ const Home = () => {
                                         </div>
                                     </div>
                                     <div className="flip-card-back">
-                                    <div class="strip"></div>
-                                    <div class="mstrip"></div>
-                                    <div class="sstrip">
-                                    <p class="code">***</p>
+                                    <div className="strip"></div>
+                                    <div className="mstrip"></div>
+                                    <div className="sstrip">
+                                    <p className="code">***</p>
                                     </div>
                                     </div>
                                 </div>
